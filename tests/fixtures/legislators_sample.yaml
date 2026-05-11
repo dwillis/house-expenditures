@@ -1,0 +1,94 @@
+- id:
+    bioguide: A000370
+  name:
+    first: Alma
+    last: Adams
+    official_full: Alma S. Adams
+  bio:
+    birthday: "1946-05-27"
+    gender: F
+  terms:
+    - type: rep
+      start: "2014-01-03"
+      end: "2025-01-03"
+      state: NC
+      district: 12
+      party: Democrat
+
+- id:
+    bioguide: R000575
+  name:
+    first: Mike
+    last: Rogers
+    official_full: Mike Rogers
+  bio:
+    birthday: "1958-07-16"
+    gender: M
+  terms:
+    - type: rep
+      start: "2003-01-07"
+      end: "2025-01-03"
+      state: AL
+      district: 3
+      party: Republican
+
+- id:
+    bioguide: R000395
+  name:
+    first: Mike
+    last: Rogers
+    official_full: Mike Rogers
+    nickname: Mike
+  bio:
+    birthday: "1963-06-02"
+    gender: M
+  terms:
+    - type: rep
+      start: "2001-01-03"
+      end: "2015-01-03"
+      state: MI
+      district: 8
+      party: Republican
+    - type: rep
+      start: "2023-01-03"
+      end: "2025-01-03"
+      state: MI
+      district: 7
+      party: Republican
+
+- id:
+    bioguide: C001103
+  name:
+    first: Earl
+    middle: L.
+    last: Carter
+    official_full: Earl L. "Buddy" Carter
+    nickname: Buddy
+    suffix: null
+  bio:
+    birthday: "1957-09-06"
+    gender: M
+  terms:
+    - type: rep
+      start: "2015-01-06"
+      end: "2025-01-03"
+      state: GA
+      district: 1
+      party: Republican
+
+- id:
+    bioguide: B001313
+  name:
+    first: Sydney Kamlager
+    last: Dove
+    official_full: "Sydney Kamlager-Dove"
+  bio:
+    birthday: "1972-07-20"
+    gender: F
+  terms:
+    - type: rep
+      start: "2023-01-03"
+      end: "2025-01-03"
+      state: CA
+      district: 37
+      party: Democrat

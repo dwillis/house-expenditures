@@ -1,0 +1,27 @@
+[project]
+name = "house-expenditures"
+version = "0.1.0"
+description = "Parse, enrich, and standardize U.S. House of Representatives expenditure data"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.1",
+    "requests>=2.31",
+    "pyyaml>=6.0",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+]
+
+[project.scripts]
+house-expenditures = "house_expenditures.cli:cli"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    "responses>=0.25",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
