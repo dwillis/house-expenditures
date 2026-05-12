@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>House Expenditures Data</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1a1a1a;
+      background: #f8f9fa;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+    header p { font-size: 1rem; opacity: 0.85; }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    section { margin-bottom: 2rem; }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: #1a3a5c;
+    }
+
+    .about p { margin-bottom: 0.75rem; }
+
+    .enrichments {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .enrichment-card {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+    }
+
+    .enrichment-card strong { display: block; margin-bottom: 0.25rem; color: #1a3a5c; }
+    .enrichment-card span { font-size: 0.9rem; color: #495057; }
+
+    .file-types {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .file-type {
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      flex: 1;
+    }
+
+    .file-type strong { display: block; margin-bottom: 0.25rem; color: #1a3a5c; }
+    .file-type span { font-size: 0.9rem; color: #495057; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    thead { background: #e9ecef; }
+    th { text-align: left; padding: 0.6rem 0.75rem; font-size: 0.85rem; font-weight: 600; color: #495057; text-transform: uppercase; letter-spacing: 0.03em; }
+    td { padding: 0.5rem 0.75rem; border-top: 1px solid #eee; font-size: 0.95rem; }
+    tr:hover td { background: #f1f3f5; }
+
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .size { color: #868e96; font-size: 0.85rem; margin-left: 0.25rem; }
+    .congress-num { color: #495057; }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: 0.85rem;
+      color: #868e96;
+      border-top: 1px solid #dee2e6;
+    }
+
+    footer a { color: #495057; }
+
+    @media (max-width: 600px) {
+      .file-types { flex-direction: column; }
+      th, td { padding: 0.4rem 0.5rem; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>House Expenditures Data</h1>
+    <p>Enriched U.S. House Statement of Disbursements, Q1 2016 &ndash; present</p>
+  </header>
+
+  <div class="container">
+    <section class="about">
+      <h2>About This Data</h2>
+      <p>
+        The U.S. House of Representatives publishes quarterly spending data in its
+        Statement of Disbursements. This project takes the raw CSV files from
+        <a href="https://www.house.gov/the-house-explained/open-government/statement-of-disbursements">house.gov</a>
+        and enriches them with legislator identifiers, so you can easily connect
+        spending to specific members of Congress.
+      </p>
+
+      <h2>Enrichments Added</h2>
+      <div class="enrichments">
+        <div class="enrichment-card">
+          <strong>Bioguide ID</strong>
+          <span>Unique identifier for each member from the official Congressional Biographical Directory.</span>
+        </div>
+        <div class="enrichment-card">
+          <strong>Member Name</strong>
+          <span>Standardized name from congress-legislators, matched to the raw organization field.</span>
+        </div>
+        <div class="enrichment-card">
+          <strong>Party</strong>
+          <span>R (Republican) or D (Democrat), sourced from the member's term record for that Congress.</span>
+        </div>
+        <div class="enrichment-card">
+          <strong>State &amp; District</strong>
+          <span>Two-letter state code and district number for the member's seat.</span>
+        </div>
+        <div class="enrichment-card">
+          <strong>Congress Number</strong>
+          <span>Which Congress (e.g. 118th) the quarter falls under, derived from the year.</span>
+        </div>
+        <div class="enrichment-card">
+          <strong>Member Flag</strong>
+          <span>Boolean indicating whether spending is from a member office vs. a committee or administrative office.</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Output File Types</h2>
+      <div class="file-types">
+        <div class="file-type">
+          <strong>Detail</strong>
+          <span>Individual transactions: vendor payments, personnel compensation, travel, etc.
+          Includes transaction date, vendor name, amount, and all enrichment fields.</span>
+        </div>
+        <div class="file-type">
+          <strong>Summary</strong>
+          <span>Aggregated spending by office and category. Includes year-to-date and
+          quarter-to-date totals plus enrichment fields.</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Downloads</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Quarter</th>
+            <th>Congress</th>
+            <th>Detail CSV</th>
+            <th>Summary CSV</th>
+          </tr>
+        </thead>
+        <tbody id="file-table"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <footer>
+    Source: <a href="https://www.house.gov/the-house-explained/open-government/statement-of-disbursements">U.S. House of Representatives</a>.
+    Legislator data from <a href="https://github.com/unitedstates/congress-legislators">congress-legislators</a>.
+    Code on <a href="https://github.com/dwillis/house-expenditures">GitHub</a>.
+  </footer>
+
+  <script>
+    function formatSize(bytes) {
+      if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+      if (bytes >= 1024) return (bytes / 1024).toFixed(0) + ' KB';
+      return bytes + ' B';
+    }
+
+    function ordinal(n) {
+      const s = ['th', 'st', 'nd', 'rd'];
+      const v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
+    function renderLink(file) {
+      if (!file) return '<span style="color:#adb5bd">--</span>';
+      return '<a href="output/' + file.filename + '">' + file.filename + '</a>'
+        + ' <span class="size">(' + formatSize(file.size_bytes) + ')</span>';
+    }
+
+    fetch('output/files.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var tbody = document.getElementById('file-table');
+        data.forEach(function(q) {
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td><strong>' + q.year + ' Q' + q.quarter + '</strong></td>' +
+            '<td class="congress-num">' + ordinal(q.congress) + '</td>' +
+            '<td>' + renderLink(q.detail) + '</td>' +
+            '<td>' + renderLink(q.summary) + '</td>';
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(function(err) {
+        document.getElementById('file-table').innerHTML =
+          '<tr><td colspan="4" style="text-align:center;color:#868e96;padding:2rem">'
+          + 'Could not load file list. Run <code>python build_site.py</code> to generate the manifest.'
+          + '</td></tr>';
+      });
+  </script>
+</body>
+</html>

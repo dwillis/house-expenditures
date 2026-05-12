@@ -1,0 +1,522 @@
+[
+  {
+    "year": 2025,
+    "quarter": 4,
+    "congress": 119,
+    "detail": {
+      "filename": "2025Q4-detail.csv",
+      "size_bytes": 22834803
+    },
+    "summary": {
+      "filename": "2025Q4-summary.csv",
+      "size_bytes": 606779
+    }
+  },
+  {
+    "year": 2025,
+    "quarter": 3,
+    "congress": 119,
+    "detail": {
+      "filename": "2025Q3-detail.csv",
+      "size_bytes": 30184017
+    },
+    "summary": {
+      "filename": "2025Q3-summary.csv",
+      "size_bytes": 630270
+    }
+  },
+  {
+    "year": 2025,
+    "quarter": 2,
+    "congress": 119,
+    "detail": {
+      "filename": "2025Q2-detail.csv",
+      "size_bytes": 30819555
+    },
+    "summary": {
+      "filename": "2025Q2-summary.csv",
+      "size_bytes": 619522
+    }
+  },
+  {
+    "year": 2025,
+    "quarter": 1,
+    "congress": 119,
+    "detail": {
+      "filename": "2025Q1-detail.csv",
+      "size_bytes": 30721390
+    },
+    "summary": {
+      "filename": "2025Q1-summary.csv",
+      "size_bytes": 597853
+    }
+  },
+  {
+    "year": 2024,
+    "quarter": 4,
+    "congress": 118,
+    "detail": {
+      "filename": "2024Q4-detail.csv",
+      "size_bytes": 29650437
+    },
+    "summary": {
+      "filename": "2024Q4-summary.csv",
+      "size_bytes": 614760
+    }
+  },
+  {
+    "year": 2024,
+    "quarter": 3,
+    "congress": 118,
+    "detail": {
+      "filename": "2024Q3-detail.csv",
+      "size_bytes": 28997762
+    },
+    "summary": {
+      "filename": "2024Q3-summary.csv",
+      "size_bytes": 629599
+    }
+  },
+  {
+    "year": 2024,
+    "quarter": 2,
+    "congress": 118,
+    "detail": {
+      "filename": "2024Q2-detail.csv",
+      "size_bytes": 30017449
+    },
+    "summary": {
+      "filename": "2024Q2-summary.csv",
+      "size_bytes": 615229
+    }
+  },
+  {
+    "year": 2024,
+    "quarter": 1,
+    "congress": 118,
+    "detail": {
+      "filename": "2024Q1-detail.csv",
+      "size_bytes": 33358216
+    },
+    "summary": {
+      "filename": "2024Q1-summary.csv",
+      "size_bytes": 588332
+    }
+  },
+  {
+    "year": 2023,
+    "quarter": 4,
+    "congress": 118,
+    "detail": {
+      "filename": "2023Q4-detail.csv",
+      "size_bytes": 28571648
+    },
+    "summary": {
+      "filename": "2023Q4-summary.csv",
+      "size_bytes": 609347
+    }
+  },
+  {
+    "year": 2023,
+    "quarter": 3,
+    "congress": 118,
+    "detail": {
+      "filename": "2023Q3-detail.csv",
+      "size_bytes": 30550338
+    },
+    "summary": {
+      "filename": "2023Q3-summary.csv",
+      "size_bytes": 627135
+    }
+  },
+  {
+    "year": 2023,
+    "quarter": 2,
+    "congress": 118,
+    "detail": {
+      "filename": "2023Q2-detail.csv",
+      "size_bytes": 29755132
+    },
+    "summary": {
+      "filename": "2023Q2-summary.csv",
+      "size_bytes": 615995
+    }
+  },
+  {
+    "year": 2023,
+    "quarter": 1,
+    "congress": 118,
+    "detail": {
+      "filename": "2023Q1-detail.csv",
+      "size_bytes": 30679081
+    },
+    "summary": {
+      "filename": "2023Q1-summary.csv",
+      "size_bytes": 590357
+    }
+  },
+  {
+    "year": 2022,
+    "quarter": 4,
+    "congress": 117,
+    "detail": {
+      "filename": "2022Q4-detail.csv",
+      "size_bytes": 25757111
+    },
+    "summary": {
+      "filename": "2022Q4-summary.csv",
+      "size_bytes": 612334
+    }
+  },
+  {
+    "year": 2022,
+    "quarter": 3,
+    "congress": 117,
+    "detail": {
+      "filename": "2022Q3-detail.csv",
+      "size_bytes": 25880420
+    },
+    "summary": {
+      "filename": "2022Q3-summary.csv",
+      "size_bytes": 626356
+    }
+  },
+  {
+    "year": 2022,
+    "quarter": 2,
+    "congress": 117,
+    "detail": {
+      "filename": "2022Q2-detail.csv",
+      "size_bytes": 24052692
+    },
+    "summary": {
+      "filename": "2022Q2-summary.csv",
+      "size_bytes": 608686
+    }
+  },
+  {
+    "year": 2022,
+    "quarter": 1,
+    "congress": 117,
+    "detail": {
+      "filename": "2022Q1-detail.csv",
+      "size_bytes": 24205296
+    },
+    "summary": {
+      "filename": "2022Q1-summary.csv",
+      "size_bytes": 570673
+    }
+  },
+  {
+    "year": 2021,
+    "quarter": 4,
+    "congress": 117,
+    "detail": {
+      "filename": "2021Q4-detail.csv",
+      "size_bytes": 22380629
+    },
+    "summary": {
+      "filename": "2021Q4-summary.csv",
+      "size_bytes": 601859
+    }
+  },
+  {
+    "year": 2021,
+    "quarter": 3,
+    "congress": 117,
+    "detail": {
+      "filename": "2021Q3-detail.csv",
+      "size_bytes": 21301386
+    },
+    "summary": {
+      "filename": "2021Q3-summary.csv",
+      "size_bytes": 622385
+    }
+  },
+  {
+    "year": 2021,
+    "quarter": 2,
+    "congress": 117,
+    "detail": {
+      "filename": "2021Q2-detail.csv",
+      "size_bytes": 20157254
+    },
+    "summary": {
+      "filename": "2021Q2-summary.csv",
+      "size_bytes": 601741
+    }
+  },
+  {
+    "year": 2021,
+    "quarter": 1,
+    "congress": 117,
+    "detail": {
+      "filename": "2021Q1-detail.csv",
+      "size_bytes": 21023216
+    },
+    "summary": {
+      "filename": "2021Q1-summary.csv",
+      "size_bytes": 557376
+    }
+  },
+  {
+    "year": 2020,
+    "quarter": 4,
+    "congress": 116,
+    "detail": {
+      "filename": "2020Q4-detail.csv",
+      "size_bytes": 17703036
+    },
+    "summary": {
+      "filename": "2020Q4-summary.csv",
+      "size_bytes": 593407
+    }
+  },
+  {
+    "year": 2020,
+    "quarter": 3,
+    "congress": 116,
+    "detail": {
+      "filename": "2020Q3-detail.csv",
+      "size_bytes": 17774641
+    },
+    "summary": {
+      "filename": "2020Q3-summary.csv",
+      "size_bytes": 606513
+    }
+  },
+  {
+    "year": 2020,
+    "quarter": 2,
+    "congress": 116,
+    "detail": {
+      "filename": "2020Q2-detail.csv",
+      "size_bytes": 17215549
+    },
+    "summary": {
+      "filename": "2020Q2-summary.csv",
+      "size_bytes": 591588
+    }
+  },
+  {
+    "year": 2020,
+    "quarter": 1,
+    "congress": 116,
+    "detail": {
+      "filename": "2020Q1-detail.csv",
+      "size_bytes": 26297515
+    },
+    "summary": {
+      "filename": "2020Q1-summary.csv",
+      "size_bytes": 572678
+    }
+  },
+  {
+    "year": 2019,
+    "quarter": 4,
+    "congress": 116,
+    "detail": {
+      "filename": "2019Q4-detail.csv",
+      "size_bytes": 24754550
+    },
+    "summary": {
+      "filename": "2019Q4-summary.csv",
+      "size_bytes": 593921
+    }
+  },
+  {
+    "year": 2019,
+    "quarter": 3,
+    "congress": 116,
+    "detail": {
+      "filename": "2019Q3-detail.csv",
+      "size_bytes": 24068770
+    },
+    "summary": {
+      "filename": "2019Q3-summary.csv",
+      "size_bytes": 607559
+    }
+  },
+  {
+    "year": 2019,
+    "quarter": 2,
+    "congress": 116,
+    "detail": {
+      "filename": "2019Q2-detail.csv",
+      "size_bytes": 24291866
+    },
+    "summary": {
+      "filename": "2019Q2-summary.csv",
+      "size_bytes": 590687
+    }
+  },
+  {
+    "year": 2019,
+    "quarter": 1,
+    "congress": 116,
+    "detail": {
+      "filename": "2019Q1-detail.csv",
+      "size_bytes": 23456090
+    },
+    "summary": {
+      "filename": "2019Q1-summary.csv",
+      "size_bytes": 530039
+    }
+  },
+  {
+    "year": 2018,
+    "quarter": 4,
+    "congress": 115,
+    "detail": {
+      "filename": "2018Q4-detail.csv",
+      "size_bytes": 20190488
+    },
+    "summary": {
+      "filename": "2018Q4-summary.csv",
+      "size_bytes": 546867
+    }
+  },
+  {
+    "year": 2018,
+    "quarter": 3,
+    "congress": 115,
+    "detail": {
+      "filename": "2018Q3-detail.csv",
+      "size_bytes": 20407898
+    },
+    "summary": {
+      "filename": "2018Q3-summary.csv",
+      "size_bytes": 552822
+    }
+  },
+  {
+    "year": 2018,
+    "quarter": 2,
+    "congress": 115,
+    "detail": {
+      "filename": "2018Q2-detail.csv",
+      "size_bytes": 21274094
+    },
+    "summary": {
+      "filename": "2018Q2-summary.csv",
+      "size_bytes": 543779
+    }
+  },
+  {
+    "year": 2018,
+    "quarter": 1,
+    "congress": 115,
+    "detail": {
+      "filename": "2018Q1-detail.csv",
+      "size_bytes": 23962679
+    },
+    "summary": {
+      "filename": "2018Q1-summary.csv",
+      "size_bytes": 525856
+    }
+  },
+  {
+    "year": 2017,
+    "quarter": 4,
+    "congress": 115,
+    "detail": {
+      "filename": "2017Q4-detail.csv",
+      "size_bytes": 20480131
+    },
+    "summary": {
+      "filename": "2017Q4-summary.csv",
+      "size_bytes": 537346
+    }
+  },
+  {
+    "year": 2017,
+    "quarter": 3,
+    "congress": 115,
+    "detail": {
+      "filename": "2017Q3-detail.csv",
+      "size_bytes": 21217374
+    },
+    "summary": {
+      "filename": "2017Q3-summary.csv",
+      "size_bytes": 552734
+    }
+  },
+  {
+    "year": 2017,
+    "quarter": 2,
+    "congress": 115,
+    "detail": {
+      "filename": "2017Q2-detail.csv",
+      "size_bytes": 21502014
+    },
+    "summary": {
+      "filename": "2017Q2-summary.csv",
+      "size_bytes": 544430
+    }
+  },
+  {
+    "year": 2017,
+    "quarter": 1,
+    "congress": 115,
+    "detail": {
+      "filename": "2017Q1-detail.csv",
+      "size_bytes": 22386302
+    },
+    "summary": {
+      "filename": "2017Q1-summary.csv",
+      "size_bytes": 529143
+    }
+  },
+  {
+    "year": 2016,
+    "quarter": 4,
+    "congress": 114,
+    "detail": {
+      "filename": "2016Q4-detail.csv",
+      "size_bytes": 19693529
+    },
+    "summary": {
+      "filename": "2016Q4-summary.csv",
+      "size_bytes": 535489
+    }
+  },
+  {
+    "year": 2016,
+    "quarter": 3,
+    "congress": 114,
+    "detail": {
+      "filename": "2016Q3-detail.csv",
+      "size_bytes": 20091364
+    },
+    "summary": {
+      "filename": "2016Q3-summary.csv",
+      "size_bytes": 545935
+    }
+  },
+  {
+    "year": 2016,
+    "quarter": 2,
+    "congress": 114,
+    "detail": {
+      "filename": "2016Q2-detail.csv",
+      "size_bytes": 21579670
+    },
+    "summary": {
+      "filename": "2016Q2-summary.csv",
+      "size_bytes": 538744
+    }
+  },
+  {
+    "year": 2016,
+    "quarter": 1,
+    "congress": 114,
+    "detail": {
+      "filename": "2016Q1-detail.csv",
+      "size_bytes": 22350434
+    },
+    "summary": {
+      "filename": "2016Q1-summary.csv",
+      "size_bytes": 525614
+    }
+  }
+]
