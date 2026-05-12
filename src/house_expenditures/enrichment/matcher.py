@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 from pathlib import Path
 
 from house_expenditures.enrichment.legislators import LegislatorIndex
@@ -24,11 +25,17 @@ def _unique_match(matches: list[Legislator]) -> Legislator | None:
 
 
 def _load_overrides(path: Path | None) -> dict[str, str]:
-    """Load manual name -> bioguide_id overrides from JSON file."""
+    """Load manual name -> bioguide_id overrides from JSON file.
+
+    Tolerates trailing commas (a common JSON editing mistake).
+    """
     if path is None or not path.exists():
         return {}
     with open(path, "r") as f:
-        data = json.load(f)
+        raw = f.read()
+    # Strip trailing commas before } or ] (not valid JSON but common)
+    raw = re.sub(r",\s*([}\]])", r"\1", raw)
+    data = json.loads(raw)
     return {k.upper().strip(): v for k, v in data.items()}
 
 
@@ -85,13 +92,16 @@ def match_legislator(
     if not last:
         return None
 
-    # 1. Manual overrides
+    # 1. Manual overrides — try the cleaned name ("MIKE ROGERS")
+    #    and the full original org string ("2020 HON. MIKE ROGERS")
     if overrides:
         raw_name = parsed["full_raw"].upper().strip()
-        if raw_name in overrides:
-            bio_id = overrides[raw_name]
-            if bio_id in index.by_bioguide:
-                return index.by_bioguide[bio_id]
+        org_upper = org.upper().strip()
+        for candidate in (raw_name, org_upper):
+            if candidate in overrides:
+                bio_id = overrides[candidate]
+                if bio_id in index.by_bioguide:
+                    return index.by_bioguide[bio_id]
 
     # 2. Exact match on official_full
     full_raw = normalize_for_matching(parsed["full_raw"] or "").upper().strip()
