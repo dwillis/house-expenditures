@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from anomaly.config import AnomalyConfig
+from anomaly import vendors
+from anomaly.config import PERSONNEL_CATEGORIES, AnomalyConfig
 
 
 def _quarter_sort_key(label: str) -> int:
@@ -121,6 +122,22 @@ def _finalize_detail(df: pd.DataFrame, member_only: bool) -> pd.DataFrame:
 
     # Normalise vendor_name: strip, uppercase for consistent matching
     df["vendor_name"] = df["vendor_name"].str.strip().str.upper()
+
+    # Canonical vendor identity (vendor_id merging + name cleaning)
+    df = vendors.add_canonical_vendor(df)
+
+    # Office size: total positive non-personnel AP spend per office×quarter,
+    # so detectors and triage can express magnitudes relative to office budget.
+    np_pos = df[
+        (df["data_source"] == "AP")
+        & (df["amount"] > 0)
+        & (~df["category"].isin(PERSONNEL_CATEGORIES))
+    ]
+    office_totals = np_pos.groupby(["bioguide_id", "quarter_label"])["amount"].sum()
+    df = df.join(
+        office_totals.rename("office_quarter_total"),
+        on=["bioguide_id", "quarter_label"],
+    )
 
     return df
 

@@ -5,6 +5,7 @@ import pandas as pd
 
 from anomaly.config import AnomalyConfig
 from anomaly.report import Finding, severity_from_quarters, severity_from_z
+from anomaly.vendors import clean_vendor_name
 
 
 def _mad_zscore(series: pd.Series) -> pd.Series:
@@ -86,7 +87,7 @@ def detect_office_negative_rate(
             ))
 
     findings.sort(key=lambda f: abs(f.amount or 0), reverse=True)
-    return findings[: config.max_findings_per_detector]
+    return findings
 
 
 def detect_cross_quarter_patterns(
@@ -101,13 +102,14 @@ def detect_cross_quarter_patterns(
     if ap_neg.empty:
         return findings
 
-    # Exclude known card-gateway aggregators
-    mask = ~ap_neg["vendor_name"].isin(config.neg_vendor_exclude)
-    ap_neg = ap_neg[mask]
+    # Exclude known card-gateway aggregators (match on cleaned form)
+    vcol = "canonical_vendor" if "canonical_vendor" in ap_neg.columns else "vendor_name"
+    excluded = {clean_vendor_name(v)[0] for v in config.neg_vendor_exclude}
+    ap_neg = ap_neg[~ap_neg[vcol].isin(excluded)]
 
     # Count distinct quarters with negatives per (office, vendor)
     pattern = (
-        ap_neg.groupby(["bioguide_id", "vendor_name", "member_name", "party", "state"])
+        ap_neg.groupby(["bioguide_id", vcol, "member_name", "party", "state"], observed=True)
         .agg(
             quarters_with_negatives=("quarter_label", "nunique"),
             quarter_list=("quarter_label", lambda x: ", ".join(sorted(x.unique()))),
@@ -132,18 +134,16 @@ def detect_cross_quarter_patterns(
             party=row["party"],
             state=row["state"],
             description=(
-                f"Negative transactions to {row['vendor_name']} "
+                f"Negative transactions to {row[vcol]} "
                 f"in {n_quarters} separate quarters"
             ),
             amount=float(row["total_negative_amount"]),
-            vendor_name=row["vendor_name"],
+            vendor_name=row[vcol],
             extra={
                 "quarters_with_negatives": n_quarters,
                 "transaction_count": int(row["transaction_count"]),
                 "quarters": row["quarter_list"],
             },
         ))
-        if len(findings) >= config.max_findings_per_detector:
-            break
 
     return findings

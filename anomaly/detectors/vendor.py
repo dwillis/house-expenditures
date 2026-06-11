@@ -2,37 +2,35 @@
 
 import pandas as pd
 
-from anomaly.config import (
-    CARD_GATEWAY_PREFIXES,
-    KNOWN_INSTITUTIONAL_VENDORS,
-    PERSONNEL_CATEGORIES,
-    AnomalyConfig,
-)
+from anomaly.config import PERSONNEL_CATEGORIES, AnomalyConfig
 from anomaly.report import Finding, severity_from_share
+from anomaly.vendors import _SEED_INSTITUTIONAL, clean_vendor_name, is_member_reimbursement
 
 
-def _is_institutional(vendor_name: str, config: AnomalyConfig) -> bool:
-    """Return True if the vendor should be excluded from rare-vendor analysis."""
-    if not vendor_name:
-        return True
-    v = str(vendor_name).upper().strip()
-    # Exact match against known set
-    if v in KNOWN_INSTITUTIONAL_VENDORS:
-        return True
-    # Card-gateway sub-merchants (CITIBANK -...) are real specific vendors — keep them
-    for prefix in CARD_GATEWAY_PREFIXES:
-        if v.startswith(prefix):
-            return False
-    # Card-gateway aggregator exclusions also in config
-    if v in config.neg_vendor_exclude:
-        return True
-    return False
+def _vendor_col(df: pd.DataFrame) -> str:
+    return "canonical_vendor" if "canonical_vendor" in df.columns else "vendor_name"
+
+
+def _institutional_set(config: AnomalyConfig) -> frozenset[str]:
+    """Vendors excluded from rare-vendor analysis: the data-driven set computed
+    at load time (ubiquitous vendors) plus the cleaned seed list and the
+    card-gateway aggregators."""
+    base = set(config.institutional_vendors) | set(_SEED_INSTITUTIONAL)
+    base.update(clean_vendor_name(v)[0] for v in config.neg_vendor_exclude)
+    base.add("")
+    return frozenset(base)
 
 
 def detect_rare_vendors(
     detail_df: pd.DataFrame, config: AnomalyConfig
 ) -> list[Finding]:
-    """E — Flag significant payments to vendors used by very few offices."""
+    """E — Flag significant payments to vendors used by very few offices.
+
+    A vendor used by a single office is only HIGH when the cumulative spend is
+    substantial — district-local landlords and printers are rare by definition
+    and not a story on their own. Cross-detector corroboration is handled in
+    triage.
+    """
     findings: list[Finding] = []
 
     # Positive AP transactions only, non-personnel
@@ -44,12 +42,15 @@ def detect_rare_vendors(
     if ap.empty:
         return findings
 
-    # Drop institutional vendors
-    ap = ap[~ap["vendor_name"].apply(lambda v: _is_institutional(v, config))]
+    vcol = _vendor_col(ap)
+    ap = ap[~ap[vcol].isin(_institutional_set(config))]
+    ap = ap[ap[vcol].notna()]
+    # Member expense reimbursements ("HON ...") are solo-office by definition
+    ap = ap[~ap[vcol].map(is_member_reimbursement)]
 
     # Count distinct offices per vendor
     vendor_stats = (
-        ap.groupby("vendor_name")
+        ap.groupby(vcol, observed=True)
         .agg(
             distinct_offices=("bioguide_id", "nunique"),
             total_spend=("amount", "sum"),
@@ -64,23 +65,29 @@ def detect_rare_vendors(
     ].sort_values("total_spend", ascending=False)
 
     for _, vrow in rare.iterrows():
-        vendor = vrow["vendor_name"]
+        vendor = vrow[vcol]
         # Find which offices paid this vendor (one row per office, not per quarter)
         offices = (
-            ap[ap["vendor_name"] == vendor][["bioguide_id", "member_name", "party", "state"]]
+            ap[ap[vcol] == vendor][["bioguide_id", "member_name", "party", "state"]]
             .drop_duplicates(subset=["bioguide_id"])
         )
 
         for _, orow in offices.iterrows():
             office_txns = ap.loc[
-                (ap["vendor_name"] == vendor) & (ap["bioguide_id"] == orow["bioguide_id"])
+                (ap[vcol] == vendor) & (ap["bioguide_id"] == orow["bioguide_id"])
             ]
             office_spend = float(office_txns["amount"].sum())
             quarters = ", ".join(sorted(office_txns["quarter_label"].unique()))
+            solo = int(vrow["distinct_offices"]) == 1
+            severity = (
+                "HIGH"
+                if solo and office_spend >= config.vendor_rare_solo_high_amount
+                else "MEDIUM"
+            )
             findings.append(Finding(
                 detector_id="E",
                 detector_name="Rare vendor",
-                severity="HIGH" if int(vrow["distinct_offices"]) == 1 else "MEDIUM",
+                severity=severity,
                 bioguide_id=orow["bioguide_id"],
                 member_name=orow["member_name"],
                 party=orow["party"],
@@ -98,8 +105,6 @@ def detect_rare_vendors(
                     "quarters": quarters,
                 },
             ))
-            if len(findings) >= config.max_findings_per_detector:
-                return findings
 
     return findings
 
@@ -118,6 +123,8 @@ def detect_vendor_concentration(
     if ap.empty:
         return findings
 
+    vcol = _vendor_col(ap)
+
     # Total non-personnel positive spend per (office, quarter)
     totals = (
         ap.groupby(["bioguide_id", "quarter_label"])["amount"]
@@ -127,7 +134,7 @@ def detect_vendor_concentration(
 
     # Per-vendor spend per (office, quarter)
     vendor_q = (
-        ap.groupby(["bioguide_id", "quarter_label", "vendor_name", "member_name", "party", "state"])
+        ap.groupby(["bioguide_id", "quarter_label", vcol, "member_name", "party", "state"], observed=True)
         ["amount"]
         .sum()
         .reset_index()
@@ -161,18 +168,16 @@ def detect_vendor_concentration(
             state=row["state"],
             quarter=str(row["quarter_label"]),
             description=(
-                f"{row['vendor_name']} received {share:.1%} of non-personnel spend "
+                f"{row[vcol]} received {share:.1%} of non-personnel spend "
                 f"(${row['vendor_spend']:,.0f} of ${row['total_spend']:,.0f})"
             ),
             amount=float(row["vendor_spend"]),
-            vendor_name=row["vendor_name"],
+            vendor_name=row[vcol],
             extra={
                 "vendor_share": f"{share:.2%}",
                 "office_non_personnel_total": round(float(row["total_spend"]), 2),
             },
         ))
-        if len(findings) >= config.max_findings_per_detector:
-            break
 
     return findings
 
@@ -191,22 +196,24 @@ def detect_new_expensive_vendors(
     if ap.empty:
         return findings
 
+    vcol = _vendor_col(ap)
+
     # Determine debut year per vendor (earliest quarter_label)
     debut = (
-        ap.groupby("vendor_name")["quarter_sort_key"]
+        ap.groupby(vcol, observed=True)["quarter_sort_key"]
         .min()
         .rename("first_quarter_key")
     )
     debut_year = (debut // 10).rename("debut_year")  # quarter_sort_key = year*10 + q
 
-    ap = ap.join(debut_year, on="vendor_name")
+    ap = ap.join(debut_year, on=vcol)
 
     new_vendors = ap[ap["debut_year"] >= config.new_vendor_debut_year]
     if new_vendors.empty:
         return findings
 
     stats = (
-        new_vendors.groupby("vendor_name")
+        new_vendors.groupby(vcol, observed=True)
         .agg(
             distinct_offices=("bioguide_id", "nunique"),
             total_spend=("amount", "sum"),
@@ -221,10 +228,10 @@ def detect_new_expensive_vendors(
     ].sort_values("total_spend", ascending=False)
 
     for _, row in flagged.iterrows():
-        vendor = row["vendor_name"]
+        vendor = row[vcol]
         # Sample of paying offices
         offices = (
-            new_vendors[new_vendors["vendor_name"] == vendor]["member_name"]
+            new_vendors[new_vendors[vcol] == vendor]["member_name"]
             .dropna()
             .unique()[:5]
         )
@@ -245,7 +252,5 @@ def detect_new_expensive_vendors(
                 "sample_offices": ", ".join(offices),
             },
         ))
-        if len(findings) >= config.max_findings_per_detector:
-            break
 
     return findings

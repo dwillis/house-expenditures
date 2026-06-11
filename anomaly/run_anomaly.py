@@ -16,8 +16,9 @@ from pathlib import Path
 # Allow running from repo root without installing the package
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from anomaly import triage, vendors
 from anomaly.config import AnomalyConfig
-from anomaly.detectors import category, negative, transactions, vendor
+from anomaly.detectors import category, insider, negative, timing, transactions, vendor
 from anomaly.loader import load_data
 from anomaly.report import build_report
 
@@ -50,6 +51,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--velocity-zscore", type=float, default=3.5)
     p.add_argument("--vendor-rare-count", type=int, default=2)
     p.add_argument("--vendor-concentration", type=float, default=0.70)
+    p.add_argument(
+        "--max-leads", type=int, default=50,
+        help="Number of ranked story leads to include in the report"
+    )
+    p.add_argument(
+        "--leads-csv", default="anomaly_leads.csv", help="Path for ranked story leads CSV"
+    )
     return p.parse_args()
 
 
@@ -72,6 +80,8 @@ def main() -> None:
         velocity_zscore=args.velocity_zscore,
         vendor_rare_office_count=args.vendor_rare_count,
         vendor_concentration_threshold=args.vendor_concentration,
+        max_leads=args.max_leads,
+        leads_csv_path=Path(args.leads_csv),
     )
 
     t0 = time.time()
@@ -82,6 +92,9 @@ def main() -> None:
     if detail_df.empty:
         print("No detail data found — check --output-dir and --since.")
         sys.exit(1)
+
+    # Data-driven institutional vendor set (ubiquitous vendors are not stories)
+    config.institutional_vendors = vendors.institutional_vendors(detail_df)
 
     all_findings = []
 
@@ -140,11 +153,40 @@ def main() -> None:
     print(f"  {len(found)} findings")
     all_findings.extend(found)
 
+    _step("L — Member-name vendor matches")
+    found = insider.detect_member_name_vendors(detail_df, config)
+    print(f"  {len(found)} findings")
+    all_findings.extend(found)
+
+    _step("M — Person-shaped payees")
+    found = insider.detect_person_payees(detail_df, config)
+    print(f"  {len(found)} findings")
+    all_findings.extend(found)
+
+    _step("N — Pre-election communications surge")
+    found = timing.detect_election_comms_surge(summary_df, config)
+    print(f"  {len(found)} findings")
+    all_findings.extend(found)
+
+    _step("O — Departing-member spend-down")
+    found = timing.detect_departing_spend_down(summary_df, config)
+    print(f"  {len(found)} findings")
+    all_findings.extend(found)
+
+    _step("P — Year-end budget exhaustion")
+    found = timing.detect_year_end_exhaustion(summary_df, config)
+    print(f"  {len(found)} findings")
+    all_findings.extend(found)
+
+    _step("Triaging findings into story leads")
+    leads = triage.build_leads(all_findings, config)
+    print(f"  {len(leads)} leads")
+
     _step("Writing outputs")
-    build_report(all_findings, config)
+    build_report(all_findings, config, leads)
 
     elapsed = time.time() - t0
-    print(f"\nDone — {len(all_findings)} total findings in {elapsed:.1f}s")
+    print(f"\nDone — {len(all_findings)} findings, {len(leads)} story leads in {elapsed:.1f}s")
 
 
 if __name__ == "__main__":

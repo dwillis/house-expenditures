@@ -64,13 +64,34 @@ def _member_label(f: Finding) -> str:
     return " ".join(parts)
 
 
-def build_report(findings: list[Finding], config: AnomalyConfig) -> None:
-    """Write text report and flagged CSV."""
-    _write_text_report(findings, config)
+def build_report(findings: list[Finding], config: AnomalyConfig, leads: list | None = None) -> None:
+    """Write text report, flagged CSV, and (when triaged) the leads CSV."""
+    _write_text_report(findings, config, leads)
     _write_flagged_csv(findings, config)
+    if leads is not None:
+        _write_leads_csv(leads, config)
 
 
-def _write_text_report(findings: list[Finding], config: AnomalyConfig) -> None:
+def _lead_lines(leads: list) -> list[str]:
+    lines: list[str] = []
+    lines.append("")
+    lines.append("=" * 72)
+    lines.append(f"STORY LEADS — top {len(leads)} by newsworthiness score")
+    lines.append("=" * 72)
+    for rank, lead in enumerate(leads, 1):
+        lines.append("")
+        lines.append(f"#{rank} [score {lead.score:.1f}] {lead.hook}")
+        for f in lead.findings:
+            lines.append(f"    [{f.severity}] {f.detector_id}. {f.detector_name}"
+                         + (f" — {f.quarter}" if f.quarter else ""))
+            lines.append(f"      {f.description}")
+    lines.append("")
+    return lines
+
+
+def _write_text_report(
+    findings: list[Finding], config: AnomalyConfig, leads: list | None = None
+) -> None:
     high = [f for f in findings if f.severity == "HIGH"]
     medium = [f for f in findings if f.severity == "MEDIUM"]
     low = [f for f in findings if f.severity == "LOW"]
@@ -109,14 +130,22 @@ def _write_text_report(findings: list[Finding], config: AnomalyConfig) -> None:
     )
     lines.append("")
 
+    if leads:
+        lines.extend(_lead_lines(leads))
+
+    # The flagged CSV holds every finding; the text listing is capped per
+    # severity so the report stays scannable.
+    max_listed = 200
     for severity_label, bucket in [("HIGH", high), ("MEDIUM", medium), ("LOW", low)]:
         if not bucket:
             continue
         lines.append("")
         lines.append(f"{'=' * 72}")
-        lines.append(f"{severity_label} FINDINGS ({len(bucket)})")
+        listed = bucket[:max_listed]
+        suffix = f", first {len(listed)} shown — full list in CSV" if len(bucket) > max_listed else ""
+        lines.append(f"{severity_label} FINDINGS ({len(bucket)}{suffix})")
         lines.append("=" * 72)
-        for i, f in enumerate(bucket, 1):
+        for i, f in enumerate(listed, 1):
             member = _member_label(f)
             lines.append(f"\n[{severity_label}] {f.detector_id}. {f.detector_name}"
                          + (f" — {f.quarter}" if f.quarter else ""))
@@ -158,3 +187,25 @@ def _write_flagged_csv(findings: list[Finding], config: AnomalyConfig) -> None:
     df = pd.DataFrame(rows)
     df.to_csv(config.flagged_csv_path, index=False)
     print(f"  Flagged CSV written to {config.flagged_csv_path} ({len(df):,} rows)")
+
+
+def _write_leads_csv(leads: list, config: AnomalyConfig) -> None:
+    rows = []
+    for rank, lead in enumerate(leads, 1):
+        rows.append({
+            "rank": rank,
+            "score": lead.score,
+            "bioguide_id": lead.bioguide_id,
+            "member_name": lead.member_name,
+            "party": lead.party,
+            "state": lead.state,
+            "vendor_name": lead.vendor_name,
+            "amount": lead.amount,
+            "quarters": ", ".join(lead.quarters),
+            "detectors": ", ".join(sorted(lead.detectors)),
+            "n_findings": len(lead.findings),
+            "hook": lead.hook,
+        })
+    df = pd.DataFrame(rows)
+    df.to_csv(config.leads_csv_path, index=False)
+    print(f"  Leads CSV written to {config.leads_csv_path} ({len(df):,} rows)")
