@@ -102,10 +102,195 @@
 
     footer a { color: #495057; }
 
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar input[type="search"] {
+      flex: 1;
+      min-width: 160px;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    .filter-bar input[type="search"]:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+    }
+
+    .filter-bar select {
+      padding: 0.45rem 0.75rem;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .filter-bar select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+    }
+
+    .filter-count {
+      font-size: 0.85rem;
+      color: #868e96;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
     @media (max-width: 600px) {
       .file-types { flex-direction: column; }
       th, td { padding: 0.4rem 0.5rem; font-size: 0.85rem; }
+      .filter-count { margin-left: 0; }
     }
+
+    /* Preview button */
+    .preview-btn {
+      margin-left: 0.4rem;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.78rem;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      background: #fff;
+      color: #495057;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .preview-btn:hover { background: #e9ecef; }
+
+    /* Modal overlay */
+    #preview-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+      overflow-y: auto;
+    }
+
+    #preview-modal {
+      background: #fff;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 4rem);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    #preview-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #dee2e6;
+      flex-shrink: 0;
+    }
+
+    #preview-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1a3a5c;
+      flex-shrink: 0;
+    }
+
+    .preview-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    #preview-search {
+      flex: 1;
+      max-width: 300px;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    #preview-search:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
+    }
+
+    #preview-close {
+      padding: 0.25rem 0.6rem;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #495057;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    #preview-close:hover { background: #f1f3f5; }
+
+    #preview-info {
+      padding: 0.35rem 1rem;
+      font-size: 0.8rem;
+      color: #868e96;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+
+    #preview-table-wrap {
+      overflow: auto;
+      flex: 1;
+      min-height: 200px;
+    }
+
+    #preview-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      border-radius: 0;
+      border: none;
+    }
+    #preview-table thead { background: #e9ecef; position: sticky; top: 0; z-index: 1; }
+    #preview-table th { padding: 0.4rem 0.6rem; white-space: nowrap; text-transform: none; letter-spacing: 0; font-size: 0.8rem; border-bottom: 1px solid #dee2e6; }
+    #preview-table td { padding: 0.3rem 0.6rem; border-top: 1px solid #f0f0f0; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; font-size: 0.8rem; }
+    #preview-table tr:hover td { background: #f8f9fa; }
+
+    #preview-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 0.65rem 1rem;
+      border-top: 1px solid #dee2e6;
+      flex-shrink: 0;
+    }
+    #preview-pagination button {
+      padding: 0.3rem 0.75rem;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #495057;
+    }
+    #preview-pagination button:hover:not(:disabled) { background: #e9ecef; }
+    #preview-pagination button:disabled { opacity: 0.4; cursor: default; }
+    #page-info { font-size: 0.85rem; color: #495057; }
   </style>
 </head>
 <body>
@@ -172,6 +357,13 @@
 
     <section>
       <h2>Downloads</h2>
+      <div class="filter-bar">
+        <input type="search" id="filter-search" placeholder="Filter by year, quarter, or Congress&hellip;" aria-label="Filter quarters">
+        <select id="filter-year" aria-label="Filter by year">
+          <option value="">All years</option>
+        </select>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
       <table>
         <thead>
           <tr>
@@ -192,7 +384,30 @@
     Code on <a href="https://github.com/dwillis/house-expenditures">GitHub</a>.
   </footer>
 
+  <div id="preview-overlay" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+    <div id="preview-modal">
+      <div id="preview-header">
+        <span id="preview-title"></span>
+        <div class="preview-controls">
+          <input type="search" id="preview-search" placeholder="Search all columns&hellip;" aria-label="Search preview data">
+          <button id="preview-close" aria-label="Close preview">&times;</button>
+        </div>
+      </div>
+      <div id="preview-info"></div>
+      <div id="preview-table-wrap">
+        <table id="preview-table"></table>
+      </div>
+      <div id="preview-pagination">
+        <button id="prev-page">&larr; Prev</button>
+        <span id="page-info"></span>
+        <button id="next-page">Next &rarr;</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    var allQuarters = [];
+
     function formatSize(bytes) {
       if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
       if (bytes >= 1024) return (bytes / 1024).toFixed(0) + ' KB';
@@ -207,15 +422,19 @@
 
     function renderLink(file) {
       if (!file) return '<span style="color:#adb5bd">--</span>';
-      return '<a href="output/' + file.filename + '">' + file.filename + '</a>'
-        + ' <span class="size">(' + formatSize(file.size_bytes) + ')</span>';
+      var fn = file.filename;
+      return '<a href="output/' + fn + '">' + fn + '</a>'
+        + ' <span class="size">(' + formatSize(file.size_bytes) + ')</span>'
+        + ' <button class="preview-btn" onclick="previewCSV(&#39;' + fn + '&#39;)">Preview</button>';
     }
 
-    fetch('output/files.json')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        var tbody = document.getElementById('file-table');
-        data.forEach(function(q) {
+    function renderRows(rows) {
+      var tbody = document.getElementById('file-table');
+      tbody.innerHTML = '';
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#868e96;padding:2rem">No matching quarters.</td></tr>';
+      } else {
+        rows.forEach(function(q) {
           var tr = document.createElement('tr');
           tr.innerHTML =
             '<td><strong>' + q.year + ' Q' + q.quarter + '</strong></td>' +
@@ -224,13 +443,181 @@
             '<td>' + renderLink(q.summary) + '</td>';
           tbody.appendChild(tr);
         });
+      }
+      var count = document.getElementById('filter-count');
+      count.textContent = rows.length === allQuarters.length
+        ? allQuarters.length + ' quarters'
+        : rows.length + ' of ' + allQuarters.length + ' quarters';
+    }
+
+    function applyFilters() {
+      var search = document.getElementById('filter-search').value.trim().toLowerCase();
+      var year = document.getElementById('filter-year').value;
+      var filtered = allQuarters.filter(function(q) {
+        if (year && String(q.year) !== year) return false;
+        if (search) {
+          var haystack = q.year + ' q' + q.quarter + ' ' + ordinal(q.congress).toLowerCase();
+          if (haystack.indexOf(search) === -1) return false;
+        }
+        return true;
+      });
+      renderRows(filtered);
+    }
+
+    fetch('output/files.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        allQuarters = data;
+
+        // Populate year dropdown from data
+        var years = [];
+        data.forEach(function(q) {
+          if (years.indexOf(q.year) === -1) years.push(q.year);
+        });
+        years.sort(function(a, b) { return b - a; });
+        var sel = document.getElementById('filter-year');
+        years.forEach(function(y) {
+          var opt = document.createElement('option');
+          opt.value = y;
+          opt.textContent = y;
+          sel.appendChild(opt);
+        });
+
+        document.getElementById('filter-search').addEventListener('input', applyFilters);
+        sel.addEventListener('change', applyFilters);
+
+        renderRows(allQuarters);
       })
-      .catch(function(err) {
+      .catch(function() {
         document.getElementById('file-table').innerHTML =
           '<tr><td colspan="4" style="text-align:center;color:#868e96;padding:2rem">'
           + 'Could not load file list. Run <code>python build_site.py</code> to generate the manifest.'
           + '</td></tr>';
       });
+
+    // ── CSV Preview ──────────────────────────────────────────────────────────
+    var previewAllRows = [];
+    var previewRows = [];
+    var previewHeaders = [];
+    var previewPage = 0;
+    var PREVIEW_PAGE_SIZE = 50;
+
+    function openPreview() {
+      var overlay = document.getElementById('preview-overlay');
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      document.getElementById('preview-search').focus();
+    }
+
+    function closePreview() {
+      document.getElementById('preview-overlay').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function renderPreviewTable() {
+      var start = previewPage * PREVIEW_PAGE_SIZE;
+      var end = Math.min(start + PREVIEW_PAGE_SIZE, previewRows.length);
+      var pageRows = previewRows.slice(start, end);
+
+      var thead = '<tr>' + previewHeaders.map(function(h) {
+        return '<th>' + h.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</th>';
+      }).join('') + '</tr>';
+
+      var tbody = pageRows.map(function(row) {
+        return '<tr>' + previewHeaders.map(function(h) {
+          var val = row[h] == null ? '' : String(row[h]);
+          return '<td title="' + val.replace(/"/g, '&quot;') + '">' + val.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</td>';
+        }).join('') + '</tr>';
+      }).join('');
+
+      document.getElementById('preview-table').innerHTML =
+        '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody>';
+
+      var total = previewAllRows.length;
+      var filtered = previewRows.length;
+      var infoText = filtered === 0
+        ? 'No matching rows.'
+        : 'Rows ' + (start + 1) + '\u2013' + end + ' of ' + filtered.toLocaleString();
+      if (filtered < total) infoText += ' (filtered from ' + total.toLocaleString() + ')';
+      document.getElementById('preview-info').textContent = infoText;
+
+      var totalPages = Math.max(1, Math.ceil(filtered / PREVIEW_PAGE_SIZE));
+      document.getElementById('page-info').textContent =
+        'Page ' + (previewPage + 1) + ' of ' + totalPages;
+      document.getElementById('prev-page').disabled = previewPage === 0;
+      document.getElementById('next-page').disabled = previewPage >= totalPages - 1;
+    }
+
+    function applyPreviewSearch() {
+      var search = document.getElementById('preview-search').value.trim().toLowerCase();
+      previewRows = search
+        ? previewAllRows.filter(function(row) {
+            return previewHeaders.some(function(h) {
+              var val = row[h];
+              return val != null && String(val).toLowerCase().indexOf(search) !== -1;
+            });
+          })
+        : previewAllRows.slice();
+      previewPage = 0;
+      renderPreviewTable();
+    }
+
+    function loadPapaParse(callback) {
+      if (window.Papa) { callback(); return; }
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js';
+      script.onload = callback;
+      script.onerror = function() {
+        document.getElementById('preview-info').textContent = 'Could not load CSV parser.';
+      };
+      document.head.appendChild(script);
+    }
+
+    function previewCSV(filename) {
+      document.getElementById('preview-title').textContent = filename;
+      document.getElementById('preview-table').innerHTML = '';
+      document.getElementById('preview-info').textContent = 'Loading\u2026';
+      document.getElementById('preview-search').value = '';
+      document.getElementById('prev-page').disabled = true;
+      document.getElementById('next-page').disabled = true;
+      document.getElementById('page-info').textContent = '';
+      openPreview();
+
+      loadPapaParse(function() {
+        Papa.parse('output/' + filename, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            previewHeaders = results.meta.fields || [];
+            previewAllRows = results.data;
+            previewRows = previewAllRows.slice();
+            previewPage = 0;
+            renderPreviewTable();
+          },
+          error: function(err) {
+            document.getElementById('preview-info').textContent = 'Error: ' + err.message;
+          }
+        });
+      });
+    }
+
+    // Wire modal controls after DOM is ready
+    document.getElementById('preview-close').addEventListener('click', closePreview);
+    document.getElementById('preview-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closePreview();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closePreview();
+    });
+    document.getElementById('preview-search').addEventListener('input', applyPreviewSearch);
+    document.getElementById('prev-page').addEventListener('click', function() {
+      if (previewPage > 0) { previewPage--; renderPreviewTable(); }
+    });
+    document.getElementById('next-page').addEventListener('click', function() {
+      var totalPages = Math.ceil(previewRows.length / PREVIEW_PAGE_SIZE);
+      if (previewPage < totalPages - 1) { previewPage++; renderPreviewTable(); }
+    });
   </script>
 </body>
 </html>

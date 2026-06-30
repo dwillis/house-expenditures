@@ -1,5 +1,18 @@
 [
   {
+    "year": 2026,
+    "quarter": 1,
+    "congress": 119,
+    "detail": {
+      "filename": "2026Q1-detail.csv",
+      "size_bytes": 32668841
+    },
+    "summary": {
+      "filename": "2026Q1-summary.csv",
+      "size_bytes": 592014
+    }
+  },
+  {
     "year": 2025,
     "quarter": 4,
     "congress": 119,
