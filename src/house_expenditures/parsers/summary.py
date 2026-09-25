@@ -41,12 +41,24 @@ def parse_summary(path: Path) -> list[SummaryRecord]:
     logger.debug("Reading %s with encoding %s", path.name, encoding)
 
     with open(path, "r", encoding=encoding, newline="") as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, restkey="__extra__")
         if reader.fieldnames is None:
             return records
         reader.fieldnames = [fn.strip() for fn in reader.fieldnames if fn.strip()]
 
         for row in reader:
+            # A row with more values than the header would be parsed with
+            # shifted columns; skip it rather than emit wrong values.
+            extra = row.pop("__extra__", None)
+            if extra and any(v.strip() for v in extra):
+                logger.warning(
+                    "Skipping misaligned row in %s line %d (organization=%r)",
+                    path.name,
+                    reader.line_num,
+                    (row.get("ORGANIZATION") or "").strip(),
+                )
+                continue
+
             desc = (row.get("DESCRIPTION") or "").strip()
             if desc.endswith("TOTALS:"):
                 continue

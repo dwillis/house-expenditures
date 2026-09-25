@@ -2,11 +2,13 @@
 
 import csv
 import logging
+import re
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from house_expenditures.models import DetailRecord
 from house_expenditures.parsers.normalize import normalize_date, normalize_text
+from house_expenditures.parsers.repair import repair_row
 
 DATE_FIELDS = {"transaction_date", "start_date", "end_date"}
 
@@ -70,6 +72,50 @@ def _detect_encoding(path: Path) -> str:
     return "iso-8859-1"
 
 
+# --- Repair validators: value shapes observed across all cached files ---
+# A wrong merge point always places a comma-containing value in the merged
+# column, so these typed-column checks are what pin the merge uniquely.
+# Free-text columns (organization, program, category, vendor name,
+# description) are intentionally unvalidated.
+
+_UPPER_ALNUM = re.compile(r"[A-Z0-9]+\Z")
+_UPPER_ALNUM_HYPHEN = re.compile(r"[A-Z0-9-]+\Z")
+_DIGITS = re.compile(r"\d+\Z")
+_SORT_SEQUENCES = {"DETAIL", "SUBTOTAL", "GRAND TOTAL FOR ORGANIZATION"}
+
+
+def _empty_or(pattern: re.Pattern, value: str) -> bool:
+    v = value.strip().upper()
+    return not v or pattern.fullmatch(v) is not None
+
+
+def _date_like(value: str) -> bool:
+    v = value.strip()
+    return not v or normalize_date(v) != v
+
+
+def _amount_like(value: str) -> bool:
+    v = value.strip()
+    return not v or _parse_amount(v) is not None
+
+
+REPAIR_VALIDATORS = {
+    "TRANSACTION DATE": _date_like,
+    "PERFORM START DT": _date_like,
+    "PERFORM END DT": _date_like,
+    "AMOUNT": _amount_like,
+    "SORT SEQUENCE": lambda v: not v.strip() or v.strip().upper() in _SORT_SEQUENCES,
+    "DATA SOURCE": lambda v: _empty_or(_UPPER_ALNUM, v),
+    "DOCUMENT": lambda v: _empty_or(_UPPER_ALNUM_HYPHEN, v),
+    "VENDOR ID": lambda v: _empty_or(_UPPER_ALNUM, v),
+    "ORGANIZATION CODE": lambda v: _empty_or(_UPPER_ALNUM, v),
+    "PROGRAM CODE": lambda v: _empty_or(_UPPER_ALNUM, v),
+    "FISCAL YEAR OR LEGISLATIVE YEAR": lambda v: _empty_or(_UPPER_ALNUM, v),
+    "BUDGET OBJECT CLASS": lambda v: _empty_or(_DIGITS, v),
+    "BUDGET OBJECT CODE": lambda v: _empty_or(_DIGITS, v),
+}
+
+
 def parse_detail(path: Path) -> list[DetailRecord]:
     """Parse a detail CSV file into a list of DetailRecord objects."""
     records: list[DetailRecord] = []
@@ -84,14 +130,40 @@ def parse_detail(path: Path) -> list[DetailRecord]:
         header_fields = first_line.split(",")
         column_map = _detect_format(header_fields)
 
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, restkey="__extra__")
         if reader.fieldnames is None:
             return records
 
         # Clean up fieldnames (trailing commas produce empty fields)
         reader.fieldnames = [fn.strip() for fn in reader.fieldnames if fn.strip()]
 
-        for row_num, row in enumerate(reader, start=2):
+        for row in reader:
+            # A row with more values than the header means a field contained
+            # an unquoted comma (real examples: CITI PCARD vendor names in the
+            # 2020Q3-2022Q3 and 2023Q3/2025Q3 files), shifting every later
+            # column. Try to repair it; skip only when no unique repair exists.
+            # Files with padded headers carry one extra *empty* trailing value
+            # on every row; those pass the check below untouched.
+            extra = row.pop("__extra__", None)
+            if extra and any(v.strip() for v in extra):
+                raw = [row.get(col) or "" for col in reader.fieldnames] + list(extra)
+                repaired = repair_row(raw, reader.fieldnames, REPAIR_VALIDATORS)
+                if repaired is None:
+                    logger.warning(
+                        "Skipping misaligned row in %s line %d (organization=%r)",
+                        path.name,
+                        reader.line_num,
+                        (row.get("ORGANIZATION") or "").strip(),
+                    )
+                    continue
+                logger.info(
+                    "Repaired misaligned row in %s line %d (organization=%r)",
+                    path.name,
+                    reader.line_num,
+                    (repaired.get("ORGANIZATION") or "").strip(),
+                )
+                row = repaired
+
             sort_seq = (row.get("SORT SEQUENCE") or "").strip()
             if sort_seq.upper() == "SUBTOTAL":
                 continue
